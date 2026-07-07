@@ -3,7 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <conio.h>
 
+#define TERMINALWIDTH 100;
+#define TERMINALHEIGHT 50;
 
 struct barang {
 	int nomorBarang;
@@ -186,7 +189,7 @@ int editBarang(int nomorBarang ,struct barang setBarang){
  * @return jika barang diambil > jumlah barang di databases maka akan 0 dan ngasih output print barang tidak mencukupi
  */
 int ambilBarang(int nomorBarang, int diambil){
-	struct nodeBarang *temp = searchBarang_nomor(&nomorBarang);
+	struct nodeBarang *temp = searchBarang_nomor(nomorBarang);
 	if (searchBarang == NULL)
 	{
 		return 0;
@@ -217,7 +220,7 @@ struct barang *getBarang_nama(char namaBarang[20]){
  * @brief getBarang_nomor adalah metode untuk mencari barang berdasarkan nama dari nomor barang tersebut
  */
 struct barang *getBarang_nomor(int nomorBarang){
-    struct nodeBarang *temp = searchBarang_name(&nomorBarang);
+    struct nodeBarang *temp = searchBarang_nomor(nomorBarang);
 	if (temp == NULL)	
 	{
 		return NULL;
@@ -228,6 +231,34 @@ struct barang *getBarang_nomor(int nomorBarang){
 
 //Bagian manajemen baranng
 void tampilanManajemen(){
+	int pilihan = -1;
+	do
+	{
+		system("cls");
+		printf("1. Lihat semua data\n");
+		printf("2. Edit data\n");
+		printf("0. Keluar Data\n");
+		printf("Pilih menu: ");
+		scanf("%d", &pilihan);
+
+		switch (pilihan)
+		{
+		case 1:
+			
+			break;
+		case 2: 
+			break;
+		case 0:
+			return;
+		default:
+			system("cls");
+			printf("Pilihan tidak ditemukan [Klik apapun untuk melanjutkan]");
+			getchar();
+			getchar();
+
+			break;
+		}
+	} while (1);
 	
 } //ada tampilan yaitu menambah barang, dan menghapus barang, serta melihat semua barang, dan exit
 
@@ -249,6 +280,7 @@ int  login(char username[20], char password [8]){
 	
 } // pada bagian ini berfungsi melakukan proses login, jadi fungsi loginnya itu di sini kalau berhasil 1 kalau gagal 0
 
-void mainmenu(){
-	
+int main(){
+	tampilanManajemen();
+	return 0;
 } //di sini adalah semua main menu yang tersedia. total ada 3 (manajemen barang, pos, riwayat transaksi)
