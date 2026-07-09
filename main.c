@@ -754,8 +754,6 @@ int main()
 	// DO NOT REMOVE THIS LINE
 	SetConsoleOutputCP(CP_UTF8);
 	SetConsoleCP(CP_UTF8);
-
-	tampilanManajemen();
 	
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n");
 	return 0;
