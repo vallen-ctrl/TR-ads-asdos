@@ -1343,7 +1343,7 @@ int main()
 	SetConsoleOutputCP(CP_UTF8);
 	SetConsoleCP(CP_UTF8);
 
-	tampilanManajemen();
+	
 
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n");
 	return 0;
