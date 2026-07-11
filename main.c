@@ -208,7 +208,7 @@ int addBarang(struct barang add_barang)
  */
 int deleteBarang(int nomorbarang)
 {
-	struct nodeBarang *temp = searchBarang_nomor(nomorbarang);
+	struct nodeBarang *temp = headBarang;      
 	struct nodeBarang *PREV = NULL;
 	while (temp != NULL)
 	{
@@ -216,11 +216,11 @@ int deleteBarang(int nomorbarang)
 		{
 			if (PREV == NULL)
 			{
-				headBarang = temp->next;
+				headBarang = temp->next;       
 			}
 			else
 			{
-				PREV = temp->next;
+				PREV->next = temp->next;       
 			}
 			free(temp);
 			return 1;
@@ -246,7 +246,6 @@ int editBarang(int nomorBarang, struct barang setBarang)
 	{
 		return 0;
 	}
-	
 
 	mencariBarang->data = setBarang;
 
@@ -304,37 +303,43 @@ struct barang *getBarang_nomor(int nomorBarang)
 
 void createBox(int width, int height, int posX, int posY)
 {
-	gotoxy(posX, posY);
 	for (int row = 0; row <= height; row++)
 	{
 		for (int col = 0; col <= width; col++)
 		{
 			if (row == 0 && col == 0)
 			{
+				gotoxy(posX + col, posY + row);
 				printf(light_DR);
 			}
 			else if (row == 0 && col == width)
 			{
+				gotoxy(posX + col, posY + row);
 				printf(light_DL);
 			}
 			else if ((row > 0 && row < height && (col == 0 || col == width)))
 			{
+				gotoxy(posX + col, posY + row);
 				printf(light_VLL);
 			}
 			else if (row == height && col == 0)
 			{
+				gotoxy(posX + col, posY + row);
 				printf(light_UR);
 			}
 			else if (row == height && col == width)
 			{
+				gotoxy(posX + col, posY + row);
 				printf(light_UL);
 			}
 			else if (row == 0 || row == height)
 			{
+				gotoxy(posX + col, posY + row);
 				printf(light_HL);
 			}
 			else
 			{
+				gotoxy(posX + col, posY + row);
 				printf(" ");
 			}
 		}
@@ -404,7 +409,7 @@ void createTableHeader(int rowWidth[], char *headerName[], int lenght, int xpos,
 	}
 }
 
-void createbodyTabel(int num, int rowWidth[], struct barang data, int lenght, int xpos, int ypos, int selection)
+void createbodyTabel(int num, int rowWidth[], struct nodeBarang *node, int lenght, int xpos, int ypos, int selection)
 {
 	int temp = 0;
 
@@ -467,30 +472,43 @@ void createbodyTabel(int num, int rowWidth[], struct barang data, int lenght, in
 	int dataTemprow = 0;
 	dataTemprow += rowWidth[0] + 1;
 	gotoxy(dataTemprow, ypos);
-	printf("%d", data.nomorBarang);
+	printf("%d", node->data.nomorBarang);
 
 	dataTemprow += rowWidth[1] + 1;
 	gotoxy(dataTemprow, ypos);
-	printf("%s", data.namaBarang);
+	printf("%s", node->data.namaBarang);
 
 	dataTemprow += rowWidth[2] + 1;
 	gotoxy(dataTemprow, ypos);
-	printf("%d", data.HargaBarang);
+	printf("%d", node->data.HargaBarang);
 
 	dataTemprow += rowWidth[3] + 1;
 	gotoxy(dataTemprow, ypos);
-	printf("%.2f", data.diskon);
+	printf("%.2f", node->data.diskon);
 
 	dataTemprow += rowWidth[4] + 1;
 	gotoxy(dataTemprow, ypos);
-	printf("%d", data.jumlahBarang);
+	printf("%d", node->data.jumlahBarang);
 
-	struct tm *t = localtime(&data.kadaluarsa);
+	struct tm *t = localtime(&node->data.kadaluarsa);
 	dataTemprow += rowWidth[5] + 1;
 	gotoxy(dataTemprow, ypos);
 	char buffer[80];
 	strftime(buffer, sizeof(buffer), "%d-%m-%Y", t);
 	printf("%s", buffer);
+
+	t = localtime(&node->waktuDibuat);
+	dataTemprow += rowWidth[6] + 1;
+	gotoxy(dataTemprow, ypos);
+	strftime(buffer, sizeof(buffer), "%d-%m-%Y", t);
+	printf("%s", buffer);
+
+	t = localtime(&node->waktuDiubah);
+	dataTemprow += rowWidth[7] + 1;
+	gotoxy(dataTemprow, ypos);
+	strftime(buffer, sizeof(buffer), "%d-%m-%Y | %H:%M", t);
+	printf("%s", buffer);
+
 	ResetColor();
 }
 
@@ -544,15 +562,17 @@ void editData(int selected)
 		temp = temp->next;
 	}
 
-	struct tm *t = localtime(&temp->data.kadaluarsa);
-	char buffer[80];
+	if (temp == NULL)
+	{
+		return;
+	}
 
 	int width = 95;
-	int height = 13;
+	int height = 18;
 	int posX = 0, posY = 0;
 	createBox(width, height, posX, posY);
 
-	gotoxy((95/2) - (17/2), posY+1);
+	gotoxy((95 / 2) - (17 / 2), posY + 1);
 	setTextColor(BLUE);
 	printf("EDIT BARANG ANDA");
 	ResetColor();
@@ -561,154 +581,538 @@ void editData(int selected)
 	int marginLeft = 2;
 
 	struct tm *diubah = localtime(&temp->waktuDiubah);
-	
-	gotoxy(posX+marginLeft, marginTop+posY);
 	char bf[80];
 	strftime(bf, sizeof(bf), "%d-%m-%Y", diubah);
+	gotoxy(posX + marginLeft, marginTop + posY);
 	setTextColor(CYAN);
 	printf("Terakhir diubah -> %s", bf);
 	ResetColor();
-	
-	gotoxy(posX + marginLeft, marginTop + 2 + posY);
-	printf("Nomor \t\t(%d)\n", temp->data.nomorBarang);
-	gotoxy(posX + marginLeft, marginTop + 3 + posY);
-	printf("Harga \t\t(%d)\n", temp->data.HargaBarang);
-	gotoxy(posX + marginLeft, marginTop + 4 + posY);
-	printf("Diskon \t\t(%.2f)\n", temp->data.diskon);
-	gotoxy(posX + marginLeft, marginTop + 5 + posY);
-	printf("Nama \t\t\t(%s)\n", temp->data.namaBarang);
-	gotoxy(posX + marginLeft, marginTop + 6 + posY);
-	printf("Jumlah \t\t(%d)\n", temp->data.jumlahBarang);
-	strftime(buffer, sizeof(buffer), "%d-%m-%Y", t);
-	gotoxy(posX + marginLeft, marginTop + 7 + posY);
-	printf("Kadaluarsa \t\t(%s)\n", buffer);
 
-	for (int i = 2; i <= 7; i++)
+	struct barang newBarang = temp->data;
+	struct tm *t_kadaluarsa = localtime(&temp->data.kadaluarsa);
+	int hari = t_kadaluarsa->tm_mday;
+	int bulan = t_kadaluarsa->tm_mon + 1;
+	int tahun = t_kadaluarsa->tm_year + 1900;
+
+	int Editselected = 0;
+	int maxSelected = 8; // 0-5 fields, 6: Simpan, 7: Batal
+
+	while (1)
 	{
-		gotoxy(posX + 40 + marginLeft, marginTop + i + posY);
-		printf(":");
+		// Redraw labels and current values
+		gotoxy(posX + marginLeft, marginTop + 2 + posY);
+		printf("Nomor \t");
+		printf("(%d)                 ", newBarang.nomorBarang);
+
+		gotoxy(posX + marginLeft, marginTop + 3 + posY);
+		printf("Harga \t");
+		printf("(%d)                 ", newBarang.HargaBarang);
+
+		gotoxy(posX + marginLeft, marginTop + 4 + posY);
+		printf("Diskon \t");
+		printf("(%.2f)               ", newBarang.diskon);
+
+		gotoxy(posX + marginLeft, marginTop + 5 + posY);
+		printf("Nama \t\t");
+		printf("(%s)                 ", newBarang.namaBarang);
+
+		gotoxy(posX + marginLeft, marginTop + 6 + posY);
+		printf("Jumlah \t");
+		printf("(%d)                 ", newBarang.jumlahBarang);
+
+		gotoxy(posX + marginLeft, marginTop + 7 + posY);
+		printf("Kadaluarsa \t");
+		printf("(%02d-%02d-%04d)         ", hari, bulan, tahun);
+
+		for (int i = 2; i <= 7; i++)
+		{
+			gotoxy(posX + 40 + marginLeft, marginTop + i + posY);
+			printf(":");
+		}
+
+		// Action buttons
+		gotoxy(posX + marginLeft, marginTop + 9 + posY);
+		printf("                                            "); // clear line
+		gotoxy(posX + marginLeft, marginTop + 9 + posY);
+		if (Editselected == 6) setTextColor(GREEN);
+		printf("[ SIMPAN BARANG ]");
+		ResetColor();
+
+		printf("   ");
+
+		if (Editselected == 7) setTextColor(RED);
+		printf("[ BATAL ]");
+		ResetColor();
+
+		// Help text
+		gotoxy(posX + marginLeft, marginTop + 11 + posY);
+		setTextColor(GREEN);
+		printf("Gunakan W/S untuk memilih, Enter untuk mengedit/memilih tindakan.");
+		gotoxy(posX + marginLeft, marginTop + 12 + posY);
+		setTextColor(RED);
+		printf("Tekan Q untuk batal.");
+		ResetColor();
+
+		// Draw selection arrow
+		for (int i = 0; i < 6; i++)
+		{
+			gotoxy(width - 5, marginTop + 2 + posY + i);
+			printf("  ");
+		}
+		if (Editselected < 6)
+		{
+			gotoxy(width - 5, marginTop + 2 + posY + Editselected);
+			setTextColor(YELLOW);
+			printf("<-");
+			ResetColor();
+		}
+
+		char ch = getch();
+		if (ch == 'w' || ch == 72)
+		{
+			if (Editselected > 0)
+			{
+				Editselected--;
+			}
+		}
+		else if (ch == 's' || ch == 80)
+		{
+			if (Editselected < maxSelected - 1)
+			{
+				Editselected++;
+			}
+		}
+		else if (ch == 'a' || ch == 75) // Left arrow on buttons
+		{
+			if (Editselected == 7)
+			{
+				Editselected = 6;
+			}
+		}
+		else if (ch == 'd' || ch == 77) // Right arrow on buttons
+		{
+			if (Editselected == 6)
+			{
+				Editselected = 7;
+			}
+		}
+		else if (ch == 'q' || ch == 113)
+		{
+			break;
+		}
+		else if (ch == '\r' || ch == 13)
+		{
+			if (Editselected == 6)
+			{
+				// Save action
+				if (newBarang.nomorBarang <= 0 || newBarang.HargaBarang < 0 || strlen(newBarang.namaBarang) == 0 || newBarang.jumlahBarang < 0 || hari == 0 || bulan == 0 || tahun == 0)
+				{
+					gotoxy(posX + marginLeft, marginTop + 13 + posY);
+					setTextColor(RED);
+					printf("Gagal: Semua field harus diisi dengan benar!");
+					ResetColor();
+					getch();
+					gotoxy(posX + marginLeft, marginTop + 13 + posY);
+					printf("                                              ");
+				}
+				else if (newBarang.nomorBarang != temp->data.nomorBarang && searchBarang_nomor(newBarang.nomorBarang) != NULL)
+				{
+					gotoxy(posX + marginLeft, marginTop + 13 + posY);
+					setTextColor(RED);
+					printf("Gagal: Kode barang sudah digunakan barang lain!");
+					ResetColor();
+					getch();
+					gotoxy(posX + marginLeft, marginTop + 13 + posY);
+					printf("                                                 ");
+				}
+				else
+				{
+					newBarang.kadaluarsa = buatTanggal(hari, bulan, tahun);
+					int res = editBarang(temp->data.nomorBarang, newBarang);
+					if (res == 1)
+					{
+						gotoxy(posX + marginLeft, marginTop + 13 + posY);
+						setTextColor(GREEN);
+						printf("Sukses mengubah data barang!");
+						ResetColor();
+						getch();
+						break;
+					}
+					else
+					{
+						gotoxy(posX + marginLeft, marginTop + 13 + posY);
+						setTextColor(RED);
+						printf("Gagal menyimpan perubahan!");
+						ResetColor();
+						getch();
+						break;
+					}
+				}
+			}
+			else if (Editselected == 7)
+			{
+				break;
+			}
+			else
+			{
+				// Edit field
+				gotoxy(posX + marginLeft, marginTop + 13 + posY);
+				setTextColor(DARKGRAY);
+				printf("Masukkan nilai baru...");
+				ResetColor();
+
+				switch (Editselected)
+				{
+				case 0:
+					gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
+					scanf("%d", &newBarang.nomorBarang);
+					break;
+				case 1:
+					gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
+					scanf("%d", &newBarang.HargaBarang);
+					break;
+				case 2:
+					gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
+					scanf("%f", &newBarang.diskon);
+					break;
+				case 3:
+					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
+					scanf(" %19[^\n]", newBarang.namaBarang);
+					break;
+				case 4:
+					gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
+					scanf("%d", &newBarang.jumlahBarang);
+					break;
+				case 5:
+					gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
+					scanf("%d", &hari);
+					gotoxy(posX + 45 + marginLeft, marginTop + 7 + posY);
+					printf("| ");
+					scanf("%d", &bulan);
+					gotoxy(posX + 49 + marginLeft, marginTop + 7 + posY);
+					printf("| ");
+					scanf("%d", &tahun);
+					break;
+				}
+
+				// Clear prompt
+				gotoxy(posX + marginLeft, marginTop + 13 + posY);
+				printf("                          ");
+			}
+		}
 	}
+}
+
+void tambahBarangUI()
+{
+	ResetColor();
+	system("cls");
+
+	int width = 95;
+	int height = 18;
+	int posX = 0, posY = 0;
+	createBox(width, height, posX, posY);
+
+	gotoxy((95 / 2) - (18 / 2), posY + 1);
+	setTextColor(BLUE);
+	printf("TAMBAH BARANG BARU");
+	ResetColor();
+
+	int marginTop = 3;
+	int marginLeft = 2;
+
+	gotoxy(posX + marginLeft, marginTop + posY);
+	setTextColor(CYAN);
+	printf("Silakan isi data barang di bawah ini");
+	ResetColor();
 
 	struct barang newBarang = {
-		.nomorBarang = temp->data.nomorBarang,
+		.nomorBarang = 0,
 		.HargaBarang = 0,
-		.diskon = 0,
+		.diskon = 0.0f,
 		.namaBarang = "",
 		.jumlahBarang = 0,
-		.kadaluarsa = temp->data.kadaluarsa};
-	gotoxy(posX + 60 + marginLeft, marginTop + 2 + posY);
-	setTextColor(DARKGRAY);
-	printf("-1 untuk tidak mengubah");
-	ResetColor();
-	gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
-	scanf("%d", &newBarang.nomorBarang);
+		.kadaluarsa = 0
+	};
 
-	gotoxy(posX + 60 + marginLeft, marginTop + 3 + posY);
-	setTextColor(DARKGRAY);
-	printf("-1 untuk tidak mengubah");
-	ResetColor();
-	gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
-	scanf("%d", &newBarang.HargaBarang);
+	int hari = 0, bulan = 0, tahun = 0;
+	int Editselected = 0;
+	int maxSelected = 8; 
 
-	gotoxy(posX + 60 + marginLeft, marginTop + 4 + posY);
-	setTextColor(DARKGRAY);
-	printf("-1 untuk tidak mengubah");
-	ResetColor();
-	gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
-	scanf("%f", &newBarang.diskon);
-
-	gotoxy(posX + 60 + marginLeft, marginTop + 5 + posY);
-	setTextColor(DARKGRAY);
-	printf("- untuk tidak mengubah");
-	ResetColor();
-	gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
-	getchar();
-	fgets(newBarang.namaBarang, sizeof(newBarang.namaBarang), stdin);
-	newBarang.namaBarang[strcspn(newBarang.namaBarang, "\n")] = '\0';
-
-	gotoxy(posX + 60 + marginLeft, marginTop + 6 + posY);
-	setTextColor(DARKGRAY);
-	printf("-1 untuk tidak mengubah");
-	ResetColor();
-	gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
-	scanf("%d", &newBarang.jumlahBarang);
-
-	gotoxy(posX + 60 + marginLeft, marginTop + 7 + posY);
-	setTextColor(DARKGRAY);
-	printf("0 | 0 | 0 untuk tidak mengubah");
-	ResetColor();
-	int hari, bulan, tahun;
-	gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
-	scanf("%d", &hari);
-	gotoxy(posX + 45 + marginLeft, marginTop + 7 + posY);
-	printf("| ");
-	scanf("%d", &bulan);
-	gotoxy(posX + 49 + marginLeft, marginTop + 7 + posY);
-	printf("| ");
-	scanf("%d", &tahun);
-	
-
-	newBarang.kadaluarsa = buatTanggal(hari, bulan, tahun);
-
-	newBarang.nomorBarang = newBarang.nomorBarang < 0 ? temp->data.nomorBarang : newBarang.nomorBarang;
-	newBarang.HargaBarang = newBarang.HargaBarang < 0 ? temp->data.HargaBarang : newBarang.HargaBarang;
-	newBarang.diskon = newBarang.diskon < 0 ? temp->data.diskon : newBarang.diskon;
-	if (strcmp(newBarang.namaBarang, "-") == 0)
+	while (1)
 	{
-		strcpy(newBarang.namaBarang, temp->data.namaBarang);
+		// Redraw labels and current values
+		gotoxy(posX + marginLeft, marginTop + 2 + posY);
+		printf("Nomor \t");
+		if (newBarang.nomorBarang != 0) printf("(%d)                    ", newBarang.nomorBarang);
+		else printf("(Belum diisi)        ");
+
+		gotoxy(posX + marginLeft, marginTop + 3 + posY);
+		printf("Harga \t");
+		if (newBarang.HargaBarang != 0) printf("(%d)                 ", newBarang.HargaBarang);
+		else printf("(Belum diisi)        ");
+
+		gotoxy(posX + marginLeft, marginTop + 4 + posY);
+		printf("Diskon \t");
+		if (newBarang.diskon != 0.0f) printf("(%.2f)                ", newBarang.diskon);
+		else printf("(Belum diisi)        ");
+
+		gotoxy(posX + marginLeft, marginTop + 5 + posY);
+		printf("Nama \t\t");
+		if (strlen(newBarang.namaBarang) > 0) printf("(%s)             ", newBarang.namaBarang);
+		else printf("(Belum diisi)        ");
+
+		gotoxy(posX + marginLeft, marginTop + 6 + posY);
+		printf("Jumlah \t");
+		if (newBarang.jumlahBarang != 0) printf("(%d)                 ", newBarang.jumlahBarang);
+		else printf("(Belum diisi)        ");
+
+		gotoxy(posX + marginLeft, marginTop + 7 + posY);
+		printf("Kadaluarsa \t");
+		if (hari != 0 && bulan != 0 && tahun != 0) printf("(%02d-%02d-%04d)         ", hari, bulan, tahun);
+		else printf("(Belum diisi)        ");
+
+		for (int i = 2; i <= 7; i++)
+		{
+			gotoxy(posX + 40 + marginLeft, marginTop + i + posY);
+			printf(":");
+		}
+
+		// Action buttons
+		gotoxy(posX + marginLeft, marginTop + 9 + posY);
+		printf("                                            "); 
+		gotoxy(posX + marginLeft, marginTop + 9 + posY);
+		if (Editselected == 6) setTextColor(GREEN);
+		printf("[ SIMPAN BARANG ]");
+		ResetColor();
+
+		printf("   ");
+
+		if (Editselected == 7) setTextColor(RED);
+		printf("[ BATAL ]");
+		ResetColor();
+
+		gotoxy(posX + marginLeft, marginTop + 11 + posY);
+		setTextColor(GREEN);
+		printf("Gunakan W/S untuk memilih, Enter untuk mengedit/memilih tindakan.");
+		gotoxy(posX + marginLeft, marginTop + 12 + posY);
+		setTextColor(RED);
+		printf("Tekan Q untuk batal.");
+		ResetColor();
+
+		// Draw selection arrow
+		for (int i = 0; i < 6; i++)
+		{
+			gotoxy(width - 5, marginTop + 2 + posY + i);
+			printf("  ");
+		}
+		if (Editselected < 6)
+		{
+			gotoxy(width - 5, marginTop + 2 + posY + Editselected);
+			setTextColor(YELLOW);
+			printf("<-");
+			ResetColor();
+		}
+
+		char ch = getch();
+		if (ch == 'w' || ch == 72)
+		{
+			if (Editselected > 0)
+			{
+				Editselected--;
+			}
+		}
+		else if (ch == 's' || ch == 80)
+		{
+			if (Editselected < maxSelected - 1)
+			{
+				Editselected++;
+			}
+		}
+		else if (ch == 'a' || ch == 75)
+		{
+			if (Editselected == 7)
+			{
+				Editselected = 6;
+			}
+		}
+		else if (ch == 'd' || ch == 77)
+		{
+			if (Editselected == 6)
+			{
+				Editselected = 7;
+			}
+		}
+		else if (ch == 'q' || ch == 113)
+		{
+			break;
+		}
+		else if (ch == '\r' || ch == 13)
+		{
+			if (Editselected == 6)
+			{
+				if (newBarang.nomorBarang == 0 || newBarang.HargaBarang == 0 || strlen(newBarang.namaBarang) == 0 || newBarang.jumlahBarang == 0 || hari == 0 || bulan == 0 || tahun == 0)
+				{
+					gotoxy(posX + marginLeft, marginTop + 13 + posY);
+					setTextColor(RED);
+					printf("Gagal: Semua field harus diisi!");
+					ResetColor();
+					getch();
+					gotoxy(posX + marginLeft, marginTop + 13 + posY);
+					printf("                               ");
+				}
+				else
+				{
+					if (searchBarang_nomor(newBarang.nomorBarang) != NULL)
+					{
+						gotoxy(posX + marginLeft, marginTop + 13 + posY);
+						setTextColor(RED);
+						printf("Gagal: Kode barang sudah ada!");
+						ResetColor();
+						getch();
+						gotoxy(posX + marginLeft, marginTop + 13 + posY);
+						printf("                             ");
+					}
+					else
+					{
+						newBarang.kadaluarsa = buatTanggal(hari, bulan, tahun);
+						int res = addBarang(newBarang);
+						if (res == 1)
+						{
+							gotoxy(posX + marginLeft, marginTop + 13 + posY);
+							setTextColor(GREEN);
+							printf("Sukses menambahkan barang baru!");
+							ResetColor();
+							getch();
+							break;
+						}
+						else
+						{
+							gotoxy(posX + marginLeft, marginTop + 13 + posY);
+							setTextColor(RED);
+							printf("Gagal menambahkan barang!");
+							ResetColor();
+							getch();
+							break;
+						}
+					}
+				}
+			}
+			else if (Editselected == 7)
+			{
+				break;
+			}
+			else
+			{
+				gotoxy(posX + marginLeft, marginTop + 13 + posY);
+				setTextColor(DARKGRAY);
+				printf("Masukkan nilai baru...");
+				ResetColor();
+
+				switch (Editselected)
+				{
+				case 0:
+					gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
+					scanf("%d", &newBarang.nomorBarang);
+					break;
+				case 1:
+					gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
+					scanf("%d", &newBarang.HargaBarang);
+					break;
+				case 2:
+					gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
+					scanf("%f", &newBarang.diskon);
+					break;
+				case 3:
+					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
+					fgets(newBarang.namaBarang, sizeof(newBarang.namaBarang),stdin);
+					newBarang.namaBarang[strcspn(newBarang.namaBarang, "\n")] = '\0';
+					break;
+				case 4:
+					gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
+					scanf("%d", &newBarang.jumlahBarang);
+					break;
+				case 5:
+					gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
+					printf("              ");
+					gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
+					scanf("%d", &hari);
+					gotoxy(posX + 45 + marginLeft, marginTop + 7 + posY);
+					printf("| ");
+					scanf("%d", &bulan);
+					gotoxy(posX + 49 + marginLeft, marginTop + 7 + posY);
+					printf("| ");
+					scanf("%d", &tahun);
+					break;
+				}
+
+				gotoxy(posX + marginLeft, marginTop + 13 + posY);
+				printf("                          ");
+			}
+		}
 	}
-	newBarang.jumlahBarang = newBarang.jumlahBarang < 0 ? temp->data.jumlahBarang : newBarang.jumlahBarang;
-	newBarang.kadaluarsa = (hari == 0 && bulan == 0 && tahun == 0) ? temp->data.kadaluarsa:buatTanggal(hari, bulan, tahun);
-
-	editBarang(temp->data.nomorBarang, newBarang);
-
-	gotoxy(posX + marginLeft, marginTop + 9 + posY);
-	setTextColor(GREEN);
-	printf("Tekan enter untuk kembali");
-	ResetColor();
-	getchar();
-	getchar();
 }
 
 void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 {
 	int selection = 1;
 	int itemsPerPage = 10;
-
-	int totalItems = 0;
-	struct nodeBarang *curr = headBarang;
-	while (curr != NULL)
-	{
-		totalItems++;
-		curr = curr->next;
-	}
-
+		
 	do
 	{
+		int totalItems = 0;
+		struct nodeBarang *curr = headBarang;
+		while (curr != NULL)
+		{
+			totalItems++;
+			curr = curr->next;
+		}
 		system("cls");
 
 		gotoxy(0, 1);
 		setTextColor(YELLOW);
 		printf("Selamat datang di menu manajemen");
 		ResetColor();
-		// Tentukan batas atas dan bawah item yang harus tampil di halaman saat ini
+
 		int currentPage = (selection - 1) / itemsPerPage;
 		int startItem = (currentPage * itemsPerPage) + 1;
 		int endItem = startItem + itemsPerPage - 1;
 
-		// Gambar Header
-		createTableHeader(rowWidth, HeaderName, 7, posX, posY);
+	
+		createTableHeader(rowWidth, HeaderName, 9, posX, posY);
 
 		struct nodeBarang *head = headBarang;
 		int numbering = 1;
 		int yRow = 0;
 
-		// Gambar Body
+
 		while (head != NULL)
 		{
 			if (numbering >= startItem && numbering <= endItem)
 			{
-				createbodyTabel(numbering, rowWidth, head->data, 7, posX, posY + 3 + yRow, selection);
+				createbodyTabel(numbering, rowWidth, head, 9, posX, posY + 3 + yRow, selection);
 				yRow += 2;
 			}
 
@@ -716,17 +1120,23 @@ void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 			head = head->next;
 		}
 
-		createfooterTabel(rowWidth, 7, posX, posY + 2 + yRow);
+		createfooterTabel(rowWidth, 9, posX, posY + 2 + yRow);
 
-		
 		gotoxy(posX, posY + 3 + yRow);
 		printf("Item Terpilih: %d / %d  (Halaman %d)", selection, totalItems, currentPage + 1);
-		gotoxy(posX, posY+4+ yRow);
+		gotoxy(posX, posY + 4 + yRow);
 		setTextColor(DARKGRAY);
 		printf("Press Enter to edit..");
-		gotoxy(posX, posY+5+ yRow);
+		gotoxy(posX, posY + 5 + yRow);
 		setTextColor(RED);
 		printf("Press q to exit");
+
+		gotoxy(posX + 25, posY + 4 + yRow);
+		setTextColor(DARKGRAY);
+		printf("| Press d to delete..");
+		gotoxy(posX + 25, posY + 5 + yRow);
+		setTextColor(DARKGRAY);
+		printf("| Press a to add..");
 		ResetColor();
 
 		char ch = getch();
@@ -754,6 +1164,75 @@ void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 		else if (ch == '\r' || ch == 13)
 		{
 			editData(selection);
+		}
+		else if (ch == 'd' || ch == 100)
+		{
+			int boxPosX = posX + 40, boxPosY = posY + 6;
+			createBox(40, 10, boxPosX, boxPosY);
+			gotoxy(boxPosX + (boxPosX / 2) - (28 / 2), boxPosY + 1);
+			printf("Yakin menghapus barang ini?");
+			gotoxy(boxPosX + 1, boxPosY + 3);
+			printf("Proses penghapusan sangat berbahaya");
+			gotoxy(boxPosX + 1, boxPosY + 4);
+			printf("karena tidak bisa dikembalikan");
+
+			int pilihan = 1;
+			gotoxy(boxPosX + (boxPosX / 2) - (13 / 2), boxPosY + 7);
+			printf("Ya");
+			printf(" | ");
+			setTextColor(GREEN);
+			printf("Tidak");
+			ResetColor();
+			while (1)
+			{
+				char yorn = getch();
+				if (yorn == 'a' || yorn == 75)
+				{
+					gotoxy(boxPosX + (boxPosX / 2) - (13 / 2), boxPosY + 7);
+					setTextColor(RED);
+					printf("Ya");
+					ResetColor();
+					printf(" | ");
+					printf("Tidak");
+					pilihan = 0;
+				}
+				else if (yorn == 'd' || yorn == 77)
+				{
+					gotoxy(boxPosX + (boxPosX / 2) - (13 / 2), boxPosY + 7);
+					printf("Ya");
+					printf(" | ");
+					setTextColor(GREEN);
+					printf("Tidak");
+					ResetColor();
+					pilihan = 1;
+					/* code */
+				}
+				else if (yorn == '\r' || yorn == 13)
+				{
+					if (pilihan == 0)
+					{
+						struct nodeBarang *hapusBarang = headBarang;
+						int hop = 1;
+						while (hapusBarang != NULL)
+						{
+							if (hop == selection)
+							{
+								break;
+							}
+							hop += 1;
+							hapusBarang = hapusBarang->next;
+						}
+						deleteBarang(hapusBarang->data.nomorBarang);
+						break;
+					}
+					else if (pilihan == 1)
+					{
+						break;
+					}
+				}
+			}
+		}else if(ch == 'a' || ch == 75){
+			tambahBarangUI();
 		}
 
 	} while (1);
@@ -793,9 +1272,9 @@ void lihatSemuadata()
 	addBarang((struct barang){.nomorBarang = 30, .HargaBarang = 6000, .diskon = 0.0f, .namaBarang = "Pocari Sweat 350ml", .jumlahBarang = 60, .kadaluarsa = time(NULL)});
 	// create table
 	//  |no.|Code|Nama barang|Harga|Diskon|Jumlah|Kadaluarsa
-	int rowWidth[] = {4, 6, 25, 12, 7, 7, 12};
-	char *headerName[] = {"No.", "Code", "Nama barang", "Harga (Rp.)", "Diskon", "Jumlah", "Kadaluarsa"};
-	
+	int rowWidth[] = {4, 10, 25, 12, 7, 7, 12, 12, 20};
+	char *headerName[] = {"No.", "Code", "Nama barang", "Harga (Rp.)", "Diskon", "Jumlah", "Kadaluarsa", "Dibuat pada", "Diubah pada"};
+
 	RenderTabel(rowWidth, headerName, 0, 4);
 	int marginTop = 1;
 
@@ -864,6 +1343,7 @@ int main()
 	SetConsoleOutputCP(CP_UTF8);
 	SetConsoleCP(CP_UTF8);
 
+	
 
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n");
 	return 0;
