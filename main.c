@@ -1342,21 +1342,202 @@ void tampilanManajemen()
 
 } // ada tampilan yaitu menambah barang, dan menghapus barang, serta melihat semua barang, dan exit
 
-// Bagian kasir
 int simpanNota(struct nota notaSelesai)
 {
+	if (totalNotaTersimpan >= 100)
+	{
+		return 0;
+	}
+	semuanotaTersimpan[totalNotaTersimpan] = notaSelesai;
+	totalNotaTersimpan++;
+	return 1;
+}
 
-} // bagian ini harus ada agar bagian kasir ngikutin. dan simpannya kedalam struct nota semuanotaTersimpan yang sudah ada
+void tampilKeranjang(struct barangdibeli keranjang[], int jumlahItem)
+{
+	int width = 98;
+	int height = 22;
+	int posX = 0, posY = 1;
+
+	system("cls");
+	createBox(width, height, posX, posY);
+	gotoxy((width / 2) - 8, posY + 1);
+	setTextColor(BLUE);
+	printf("MENU KASIR");
+	ResetColor();
+
+	gotoxy(posX + 3, posY + 3);
+	setTextColor(YELLOW);
+	printf("Keranjang:");
+	ResetColor();
+
+	gotoxy(posX + 3, posY + 5);
+	printf("%-25s| %-10s| %-8s| %-8s", "Nama", "Harga", "Diskon", "Qty");
+	gotoxy(posX + 3, posY + 6);
+	printf("--------------------------------------------------------------------------------");
+
+	for (int i = 0; i < jumlahItem; i++)
+	{
+		int y = posY + 7 + i;
+		if (y >= posY + height - 4)
+		{
+			gotoxy(posX + 3, posY + height - 4);
+			setTextColor(RED);
+			printf("(Terlalu banyak item untuk tampil)");
+			ResetColor();
+			break;
+		}
+		gotoxy(posX + 3, y);
+		printf("%-25s| Rp%-7d| %-7.2f| %-8d",
+				keranjang[i].barang.namaBarang,
+				keranjang[i].barang.HargaBarang,
+				keranjang[i].diskon,
+				keranjang[i].jumlah);
+	}
+}
+
+void tampilanKasir()
+{
+	int jumlahItem = 0;
+	struct barangdibeli keranjang[100];
+	int totalBayar = 0;
+
+	if (strlen(kasir_sekarang.username) == 0)
+	{
+		strcpy(kasir_sekarang.username, "kasir");
+	}
+
+	while (1)
+	{
+		tampilKeranjang(keranjang, jumlahItem);
+
+		int posX = 0, posY = 1;
+		int inputY = posY + 20;
+		gotoxy(posX + 3, inputY);
+		setTextColor(GREEN);
+		printf("Input nomorBarang (int) | 0 untuk checkout : ");
+		ResetColor();
+
+		int nomorBarang;
+		if (scanf("%d", &nomorBarang) != 1)
+		{
+			getch();
+			continue;
+		}
+
+		if (nomorBarang == 0)
+		{
+			break;
+		}
+
+		struct barang *b = getBarang_nomor(nomorBarang);
+		if (b == NULL)
+		{
+			gotoxy(posX + 3, inputY + 1);
+			setTextColor(RED);
+			printf("Barang tidak ditemukan. Tekan apa saja untuk melanjutkan...");
+			ResetColor();
+			getch();
+			continue;
+		}
+
+		gotoxy(posX + 3, inputY + 1);
+		printf("Input quantity             : ");
+		gotoxy(posX + 32, inputY + 1);
+
+		int qty;
+		if (scanf("%d", &qty) != 1)
+		{
+			getch();
+			continue;
+		}
+
+		if (qty <= 0)
+		{
+			setTextColor(RED);
+			printf("Quantity tidak valid. Tekan apa saja untuk melanjutkan...");
+			ResetColor();
+			getch();
+			continue;
+		}
+
+		if (b->jumlahBarang < qty)
+		{
+			setTextColor(RED);
+			printf("Stok kurang. Stok tersedia %d. Tekan apa saja untuk melanjutkan...", b->jumlahBarang);
+			ResetColor();
+			getch();
+			continue;
+		}
+
+		if (jumlahItem >= 100)
+		{
+			setTextColor(RED);
+			printf("Keranjang penuh. Tekan apa saja untuk melanjutkan...");
+			ResetColor();
+			getch();
+			break;
+		}
+
+		keranjang[jumlahItem].nomorNota = totalNotaTersimpan + 1;
+		keranjang[jumlahItem].barang = *b;
+		keranjang[jumlahItem].jumlah = qty;
+		keranjang[jumlahItem].diskon = b->diskon;
+
+		float hargaLine = (float)b->HargaBarang * qty * (1.0f - b->diskon);
+		keranjang[jumlahItem].subTotall = (int)(hargaLine + 0.5f);
+		totalBayar += keranjang[jumlahItem].subTotall;
+		jumlahItem++;
+	}
+
+	if (jumlahItem == 0)
+	{
+		gotoxy(0, 45);
+		printf("Tidak ada item untuk checkout.\n");
+		getch();
+		return;
+	}
+
+	struct nota notaSelesai;
+	notaSelesai.nomorNota = totalNotaTersimpan + 1;
+	strcpy(notaSelesai.nama_kasir, kasir_sekarang.username);
+	notaSelesai.waktuTanggalTransaksi = time(NULL);
+
+	for (int i = 0; i < jumlahItem; i++)
+	{
+		keranjang[i].nomorNota = notaSelesai.nomorNota;
+		notaSelesai.semuabarangp[i] = keranjang[i];
+	}
+
+	for (int i = 0; i < jumlahItem; i++)
+	{
+		ambilBarang(keranjang[i].barang.nomorBarang, keranjang[i].jumlah);
+	}
+
+	simpanNota(notaSelesai);
+
+	system("cls");
+	setTextColor(YELLOW);
+	printf("CHECKOUT BERHASIL!\n");
+	ResetColor();
+	printf("nama barang yang dibeli:\n");
+	for (int i = 0; i < jumlahItem; i++)
+	{
+		printf("%d. %s | Qty: %d | Subtotal: Rp%d\n",
+			   i + 1,
+			   keranjang[i].barang.namaBarang,
+			   keranjang[i].jumlah,
+			   keranjang[i].subTotall);
+	}
+	printf("Total bayar: Rp%d\n", totalBayar);
+	printf("Nomor nota : %d\n", notaSelesai.nomorNota);
+	printf("Tekan apa saja untuk kembali...");
+	getch();
+}
 
 // Bagian riwayat Transaksi
 
 // tinggal iklutin instruksi yang di atas ya
-
-// Bagian login
-int login(char username[20], char password[8])
-{
-
-} // pada bagian ini berfungsi melakukan proses login, jadi fungsi loginnya itu di sini kalau berhasil 1 kalau gagal 0
 
 void adddumyData()
 {
@@ -1392,6 +1573,101 @@ void adddumyData()
 	addBarang((struct barang){.nomorBarang = 30, .HargaBarang = 6000, .diskon = 0.0f, .namaBarang = "Pocari Sweat 350ml", .jumlahBarang = 60, .kadaluarsa = time(NULL)});
 }
 
+// Bagian login
+int login(char username[20], char password[8])
+{
+	for (int i = 0; i < 2; i++)
+	{
+		if (strcmp(semua_Kasir[i].username, username) == 0 &&
+			strcmp(semua_Kasir[i].password, password) == 0)
+		{
+			kasir_sekarang = semua_Kasir[i];
+			return 1;
+		}
+	}
+	return 0;
+}
+
+void mainmenu()
+{
+	int pilihan;
+	int sudahLogout = 0;
+
+	while (!sudahLogout)
+	{
+		system("cls");
+		int width = 60, height = 14;
+		int posX = (TERMINALWIDTH / 2) - (width / 2);
+		int posY = 5;
+
+		createBox(width, height, posX, posY);
+
+		gotoxy(posX + (width / 2) - 5, posY + 1);
+		setTextColor(BLUE);
+		printf("MENU UTAMA");
+		ResetColor();
+
+		gotoxy(posX + 3, posY + 3);
+		printf("Login sebagai : %s", kasir_sekarang.username);
+
+		gotoxy(posX + 3, posY + 5);
+		printf("1. Manajemen Barang");
+		gotoxy(posX + 3, posY + 6);
+		printf("2. Kasir / Transaksi");
+		gotoxy(posX + 3, posY + 7);
+		printf("3. Riwayat Transaksi");
+		gotoxy(posX + 3, posY + 8);
+		setTextColor(YELLOW);
+		printf("9. Logout");
+		ResetColor();
+		gotoxy(posX + 3, posY + 9);
+		setTextColor(RED);
+		printf("0. Keluar Program");
+		ResetColor();
+
+		gotoxy(posX + 3, posY + 11);
+		printf("Pilih menu: ");
+
+		if (scanf("%d", &pilihan) != 1)
+		{
+			while (getchar() != '\n');
+			pilihan = -1;
+		}
+
+		switch (pilihan)
+		{
+		case 1:
+			tampilanManajemen();
+			break;
+		case 2:
+			tampilanKasir();
+			break;
+		case 3:
+			system("cls");
+			gotoxy(posX, posY);
+			setTextColor(YELLOW);
+			printf("Fitur Riwayat Transaksi belum tersedia.");
+			ResetColor();
+			getch();
+			break;
+		case 9:
+			sudahLogout = 1;
+			memset(&kasir_sekarang, 0, sizeof(kasir_sekarang));
+			break;
+		case 0:
+			sudahLogout = 1;
+			exit(0); // langsung keluar program
+		default:
+			gotoxy(posX + 3, posY + 13);
+			setTextColor(RED);
+			printf("Pilihan tidak valid! Coba lagi...");
+			ResetColor();
+			getch();
+			break;
+		}
+	}
+}
+
 int main()
 {
 	system("cls");
@@ -1401,7 +1677,7 @@ int main()
 	adddumyData();
 	// ========================
 
-	tampilanManajemen();
+	mainmenu();
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n");
 	return 0;
 } // di sini adalah semua main menu yang tersedia. total ada 3 (manajemen barang, pos, riwayat transaksi)
