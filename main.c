@@ -1576,15 +1576,95 @@ void adddumyData()
 // Bagian login
 int login(char username[20], char password[8])
 {
+	system("cls");
+
+	int width = 40, height = 12;
+	int posX = (TERMINALWIDTH / 2) - (width / 2);
+	int posY = 8;
+
+	// Gambar box utama login
+	createBox(width, height, posX, posY);
+
+	// Judul
+	setTextColor(CYAN);
+	gotoxy(posX + (width / 2) - 5, posY + 1);
+	printf("=[ LOGIN ]=");
+	ResetColor();
+
+	// Label Username
+	gotoxy(posX + 3, posY + 3);
+	setTextColor(LIGHTGRAY);
+	printf("Username : ");
+	ResetColor();
+
+	// Input username
+	gotoxy(posX + 13, posY + 3);
+	setTextColor(WHITE);
+	inputTextWithMaxlenght(20, username);
+	ResetColor();
+
+	// Label Password
+	gotoxy(posX + 3, posY + 5);
+	setTextColor(LIGHTGRAY);
+	printf("Password : ");
+	ResetColor();
+
+	// Input password (disembunyikan dengan *)
+	gotoxy(posX + 13, posY + 5);
+	setTextColor(WHITE);
+	int passLen = 0;
+	char ch;
+	while ((ch = getch()) != '\r')
+	{
+		if (ch == '\b')
+		{
+			if (passLen > 0)
+			{
+				passLen--;
+				printf("\b \b");
+			}
+		}
+		else if (passLen < 7)
+		{
+			password[passLen++] = ch;
+			putchar('*');
+		}
+	}
+	password[passLen] = '\0';
+	ResetColor();
+
+	// Cek kredensial
 	for (int i = 0; i < 2; i++)
 	{
 		if (strcmp(semua_Kasir[i].username, username) == 0 &&
 			strcmp(semua_Kasir[i].password, password) == 0)
 		{
 			kasir_sekarang = semua_Kasir[i];
+
+			// Pesan sukses
+			gotoxy(posX + 3, posY + 9);
+			setTextColor(GREEN);
+			printf("Login berhasil! Selamat datang, %s", kasir_sekarang.username);
+			ResetColor();
+			gotoxy(posX + 3, posY + 11);
+			setTextColor(DARKGRAY);
+			printf("Tekan sembarang tombol...");
+			ResetColor();
+			getch();
 			return 1;
 		}
 	}
+
+	// Pesan gagal
+	gotoxy(posX + 3, posY + 9);
+	setTextColor(RED);
+	printf("Username atau password salah!");
+	ResetColor();
+	gotoxy(posX + 3, posY + 11);
+	setTextColor(DARKGRAY);
+	printf("Tekan sembarang tombol...");
+	ResetColor();
+	getch();
 	return 0;
 }
 
@@ -1676,6 +1756,14 @@ int main()
 	SetConsoleCP(CP_UTF8);
 	adddumyData();
 	// ========================
+
+	// Loop login sampai berhasil
+	char username[20];
+	char password[8];
+	while (login(username, password) == 0)
+	{
+		// ulangi login jika gagal
+	}
 
 	mainmenu();
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n");
