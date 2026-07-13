@@ -105,6 +105,14 @@ void gotoxy(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
+void clearLine(int lenght)
+{
+	for (int i = 0; i < lenght; i++)
+	{
+		printf(" ");
+	}
+}
+
 void setTextColor(int COLOR)
 {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -345,6 +353,30 @@ void createBox(int width, int height, int posX, int posY)
 		}
 		printf("\n");
 	}
+}
+
+void inputTextWithMaxlenght(int maxLenght, char *buffer)
+{
+	int i = 0;
+	char ch;
+	while ((ch = getch()) != '\r')
+	{
+		if (ch == '\b')
+		{ // Backspace
+			if (i > 0)
+			{
+				i--;
+				printf("\b \b");
+			}
+		}
+		else if (i < maxLenght - 1)
+		{
+			buffer[i++] = ch;
+			putchar(ch);
+		}
+	}
+	buffer[i] = '\0';
+	printf("\n");
 }
 
 void createTableHeader(int rowWidth[], char *headerName[], int lenght, int xpos, int ypos)
@@ -602,23 +634,28 @@ void editData(int selected)
 		// Redraw labels and current values
 		gotoxy(posX + marginLeft, marginTop + 2 + posY);
 		printf("Nomor \t");
-		printf("(%d)                 ", newBarang.nomorBarang);
+		printf("(%d)", newBarang.nomorBarang);
+		clearLine(24);
 
 		gotoxy(posX + marginLeft, marginTop + 3 + posY);
 		printf("Harga \t");
-		printf("(%d)                 ", newBarang.HargaBarang);
+		printf("(%d)", newBarang.HargaBarang);
+		clearLine(24);
 
 		gotoxy(posX + marginLeft, marginTop + 4 + posY);
 		printf("Diskon \t");
-		printf("(%.2f)               ", newBarang.diskon);
+		printf("(%.2f)", newBarang.diskon);
+		clearLine(24);
 
 		gotoxy(posX + marginLeft, marginTop + 5 + posY);
 		printf("Nama \t\t");
-		printf("(%s)                 ", newBarang.namaBarang);
+		printf("(%s)", newBarang.namaBarang);
+		clearLine(24 - strlen(newBarang.namaBarang));
 
 		gotoxy(posX + marginLeft, marginTop + 6 + posY);
 		printf("Jumlah \t");
-		printf("(%d)                 ", newBarang.jumlahBarang);
+		printf("(%d)", newBarang.jumlahBarang);
+		clearLine(24);
 
 		gotoxy(posX + marginLeft, marginTop + 7 + posY);
 		printf("Kadaluarsa \t");
@@ -767,37 +804,37 @@ void editData(int selected)
 				{
 				case 0:
 					gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
 					scanf("%d", &newBarang.nomorBarang);
 					break;
 				case 1:
 					gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
 					scanf("%d", &newBarang.HargaBarang);
 					break;
 				case 2:
 					gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
 					scanf("%f", &newBarang.diskon);
 					break;
 				case 3:
 					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
-					scanf(" %19[^\n]", newBarang.namaBarang);
+					inputTextWithMaxlenght(20, newBarang.namaBarang);
 					break;
 				case 4:
 					gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
 					scanf("%d", &newBarang.jumlahBarang);
 					break;
 				case 5:
 					gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
 					scanf("%d", &hari);
 					gotoxy(posX + 45 + marginLeft, marginTop + 7 + posY);
@@ -1040,38 +1077,38 @@ void tambahBarangUI()
 				{
 				case 0:
 					gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 2 + posY);
 					scanf("%d", &newBarang.nomorBarang);
 					break;
 				case 1:
 					gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 3 + posY);
 					scanf("%d", &newBarang.HargaBarang);
 					break;
 				case 2:
 					gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 4 + posY);
 					scanf("%f", &newBarang.diskon);
 					break;
 				case 3:
 					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
 					fgets(newBarang.namaBarang, sizeof(newBarang.namaBarang), stdin);
 					newBarang.namaBarang[strcspn(newBarang.namaBarang, "\n")] = '\0';
 					break;
 				case 4:
 					gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 6 + posY);
 					scanf("%d", &newBarang.jumlahBarang);
 					break;
 				case 5:
 					gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
-					printf("              ");
+					clearLine(41);
 					gotoxy(posX + 42 + marginLeft, marginTop + 7 + posY);
 					scanf("%d", &hari);
 					gotoxy(posX + 45 + marginLeft, marginTop + 7 + posY);
@@ -1139,7 +1176,7 @@ void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 		printf("Item Terpilih: %d / %d  (Halaman %d)", selection, totalItems, currentPage + 1);
 		gotoxy(posX, posY + 4 + yRow);
 		setTextColor(DARKGRAY);
-		printf("Press Enter to edit..");
+		printf("Press e to edit..");
 		gotoxy(posX, posY + 5 + yRow);
 		setTextColor(RED);
 		printf("Press q to exit");
@@ -1174,7 +1211,7 @@ void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 		{
 			break;
 		}
-		else if (ch == '\r' || ch == 13)
+		else if (ch == 'e' || ch == 101)
 		{
 			editData(selection);
 		}
@@ -1363,6 +1400,8 @@ int main()
 	SetConsoleCP(CP_UTF8);
 	adddumyData();
 	// ========================
+
+	tampilanManajemen();
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n");
 	return 0;
 } // di sini adalah semua main menu yang tersedia. total ada 3 (manajemen barang, pos, riwayat transaksi)
