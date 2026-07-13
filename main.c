@@ -208,7 +208,7 @@ int addBarang(struct barang add_barang)
  */
 int deleteBarang(int nomorbarang)
 {
-	struct nodeBarang *temp = headBarang;      
+	struct nodeBarang *temp = headBarang;
 	struct nodeBarang *PREV = NULL;
 	while (temp != NULL)
 	{
@@ -216,11 +216,11 @@ int deleteBarang(int nomorbarang)
 		{
 			if (PREV == NULL)
 			{
-				headBarang = temp->next;       
+				headBarang = temp->next;
 			}
 			else
 			{
-				PREV->next = temp->next;       
+				PREV->next = temp->next;
 			}
 			free(temp);
 			return 1;
@@ -634,13 +634,15 @@ void editData(int selected)
 		gotoxy(posX + marginLeft, marginTop + 9 + posY);
 		printf("                                            "); // clear line
 		gotoxy(posX + marginLeft, marginTop + 9 + posY);
-		if (Editselected == 6) setTextColor(GREEN);
+		if (Editselected == 6)
+			setTextColor(GREEN);
 		printf("[ SIMPAN BARANG ]");
 		ResetColor();
 
 		printf("   ");
 
-		if (Editselected == 7) setTextColor(RED);
+		if (Editselected == 7)
+			setTextColor(RED);
 		printf("[ BATAL ]");
 		ResetColor();
 
@@ -844,45 +846,56 @@ void tambahBarangUI()
 		.diskon = 0.0f,
 		.namaBarang = "",
 		.jumlahBarang = 0,
-		.kadaluarsa = 0
-	};
+		.kadaluarsa = 0};
 
 	int hari = 0, bulan = 0, tahun = 0;
 	int Editselected = 0;
-	int maxSelected = 8; 
+	int maxSelected = 8;
 
 	while (1)
 	{
 		// Redraw labels and current values
 		gotoxy(posX + marginLeft, marginTop + 2 + posY);
 		printf("Nomor \t");
-		if (newBarang.nomorBarang != 0) printf("(%d)                    ", newBarang.nomorBarang);
-		else printf("(Belum diisi)        ");
+		if (newBarang.nomorBarang != 0)
+			printf("(%d)                    ", newBarang.nomorBarang);
+		else
+			printf("(Belum diisi)        ");
 
 		gotoxy(posX + marginLeft, marginTop + 3 + posY);
 		printf("Harga \t");
-		if (newBarang.HargaBarang != 0) printf("(%d)                 ", newBarang.HargaBarang);
-		else printf("(Belum diisi)        ");
+		if (newBarang.HargaBarang != 0)
+			printf("(%d)                 ", newBarang.HargaBarang);
+		else
+			printf("(Belum diisi)        ");
 
 		gotoxy(posX + marginLeft, marginTop + 4 + posY);
 		printf("Diskon \t");
-		if (newBarang.diskon != 0.0f) printf("(%.2f)                ", newBarang.diskon);
-		else printf("(Belum diisi)        ");
+		if (newBarang.diskon != 0.0f)
+			printf("(%.2f)                ", newBarang.diskon);
+		else
+			printf("(Belum diisi)        ");
 
 		gotoxy(posX + marginLeft, marginTop + 5 + posY);
 		printf("Nama \t\t");
-		if (strlen(newBarang.namaBarang) > 0) printf("(%s)             ", newBarang.namaBarang);
-		else printf("(Belum diisi)        ");
+		if (strlen(newBarang.namaBarang) > 0)
+			printf("(%s)             ", newBarang.namaBarang);
+		else
+			printf("(Belum diisi)        ");
 
 		gotoxy(posX + marginLeft, marginTop + 6 + posY);
 		printf("Jumlah \t");
-		if (newBarang.jumlahBarang != 0) printf("(%d)                 ", newBarang.jumlahBarang);
-		else printf("(Belum diisi)        ");
+		if (newBarang.jumlahBarang != 0)
+			printf("(%d)                 ", newBarang.jumlahBarang);
+		else
+			printf("(Belum diisi)        ");
 
 		gotoxy(posX + marginLeft, marginTop + 7 + posY);
 		printf("Kadaluarsa \t");
-		if (hari != 0 && bulan != 0 && tahun != 0) printf("(%02d-%02d-%04d)         ", hari, bulan, tahun);
-		else printf("(Belum diisi)        ");
+		if (hari != 0 && bulan != 0 && tahun != 0)
+			printf("(%02d-%02d-%04d)         ", hari, bulan, tahun);
+		else
+			printf("(Belum diisi)        ");
 
 		for (int i = 2; i <= 7; i++)
 		{
@@ -892,15 +905,17 @@ void tambahBarangUI()
 
 		// Action buttons
 		gotoxy(posX + marginLeft, marginTop + 9 + posY);
-		printf("                                            "); 
+		printf("                                            ");
 		gotoxy(posX + marginLeft, marginTop + 9 + posY);
-		if (Editselected == 6) setTextColor(GREEN);
+		if (Editselected == 6)
+			setTextColor(GREEN);
 		printf("[ SIMPAN BARANG ]");
 		ResetColor();
 
 		printf("   ");
 
-		if (Editselected == 7) setTextColor(RED);
+		if (Editselected == 7)
+			setTextColor(RED);
 		printf("[ BATAL ]");
 		ResetColor();
 
@@ -1045,7 +1060,7 @@ void tambahBarangUI()
 					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
 					printf("              ");
 					gotoxy(posX + 42 + marginLeft, marginTop + 5 + posY);
-					fgets(newBarang.namaBarang, sizeof(newBarang.namaBarang),stdin);
+					fgets(newBarang.namaBarang, sizeof(newBarang.namaBarang), stdin);
 					newBarang.namaBarang[strcspn(newBarang.namaBarang, "\n")] = '\0';
 					break;
 				case 4:
@@ -1079,7 +1094,7 @@ void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 {
 	int selection = 1;
 	int itemsPerPage = 10;
-		
+
 	do
 	{
 		int totalItems = 0;
@@ -1100,13 +1115,11 @@ void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 		int startItem = (currentPage * itemsPerPage) + 1;
 		int endItem = startItem + itemsPerPage - 1;
 
-	
 		createTableHeader(rowWidth, HeaderName, 9, posX, posY);
 
 		struct nodeBarang *head = headBarang;
 		int numbering = 1;
 		int yRow = 0;
-
 
 		while (head != NULL)
 		{
@@ -1231,7 +1244,9 @@ void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 					}
 				}
 			}
-		}else if(ch == 'a' || ch == 75){
+		}
+		else if (ch == 'a' || ch == 75)
+		{
 			tambahBarangUI();
 		}
 
@@ -1240,36 +1255,6 @@ void RenderTabel(int rowWidth[], char *HeaderName[], int posX, int posY)
 
 void lihatSemuadata()
 {
-	addBarang((struct barang){.nomorBarang = 1, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 2, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 3, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 4, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 5, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 6, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 7, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 8, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 9, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 10, .HargaBarang = 15000, .diskon = 0.1f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 11, .HargaBarang = 5000, .diskon = 0.0f, .namaBarang = "Aqua Botol 600ml", .jumlahBarang = 100, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 12, .HargaBarang = 4000, .diskon = 0.0f, .namaBarang = "Teh Pucuk Harum", .jumlahBarang = 80, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 13, .HargaBarang = 12000, .diskon = 0.0f, .namaBarang = "Chitato Sapi", .jumlahBarang = 40, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 14, .HargaBarang = 18000, .diskon = 0.1f, .namaBarang = "Silverqueen Almond", .jumlahBarang = 25, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 15, .HargaBarang = 7000, .diskon = 0.0f, .namaBarang = "Coca Cola Kaleng", .jumlahBarang = 60, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 16, .HargaBarang = 22000, .diskon = 0.0f, .namaBarang = "Pringles Original", .jumlahBarang = 30, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 17, .HargaBarang = 8500, .diskon = 0.0f, .namaBarang = "Oreo Vanilla Pack", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 18, .HargaBarang = 15000, .diskon = 0.0f, .namaBarang = "Sari Roti Tawar", .jumlahBarang = 15, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 19, .HargaBarang = 6500, .diskon = 0.05f, .namaBarang = "Ultra Milk", .jumlahBarang = 70, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 20, .HargaBarang = 3500, .diskon = 0.0f, .namaBarang = "Mie Sedaap Goreng", .jumlahBarang = 120, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 21, .HargaBarang = 11000, .diskon = 0.0f, .namaBarang = "ABC Kecap", .jumlahBarang = 35, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 22, .HargaBarang = 28000, .diskon = 0.1f, .namaBarang = "Bimoli ", .jumlahBarang = 20, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 23, .HargaBarang = 16000, .diskon = 0.0f, .namaBarang = "Gulaku ", .jumlahBarang = 40, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 24, .HargaBarang = 25000, .diskon = 0.15f, .namaBarang = "Kopi Kapal Api 380g", .jumlahBarang = 30, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 25, .HargaBarang = 24000, .diskon = 0.0f, .namaBarang = "Lifebuoy Cair Refill", .jumlahBarang = 25, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 26, .HargaBarang = 12500, .diskon = 0.0f, .namaBarang = "Pepsodent White 190g", .jumlahBarang = 45, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 27, .HargaBarang = 30000, .diskon = 0.1f, .namaBarang = "Rinso Liquid 750ml", .jumlahBarang = 20, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 28, .HargaBarang = 9500, .diskon = 0.0f, .namaBarang = "Sunlight Jeruk Nipis", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 29, .HargaBarang = 14000, .diskon = 0.0f, .namaBarang = "Frisian Flag ", .jumlahBarang = 35, .kadaluarsa = time(NULL)});
-	addBarang((struct barang){.nomorBarang = 30, .HargaBarang = 6000, .diskon = 0.0f, .namaBarang = "Pocari Sweat 350ml", .jumlahBarang = 60, .kadaluarsa = time(NULL)});
 	// create table
 	//  |no.|Code|Nama barang|Harga|Diskon|Jumlah|Kadaluarsa
 	int rowWidth[] = {4, 10, 25, 12, 7, 7, 12, 12, 20};
@@ -1336,15 +1321,48 @@ int login(char username[20], char password[8])
 
 } // pada bagian ini berfungsi melakukan proses login, jadi fungsi loginnya itu di sini kalau berhasil 1 kalau gagal 0
 
+void adddumyData()
+{
+	addBarang((struct barang){.nomorBarang = 1, .HargaBarang = 3500, .diskon = 0.0f, .namaBarang = "Indomie Goreng", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 2, .HargaBarang = 3200, .diskon = 0.0f, .namaBarang = "Indomie Kuah Ayam", .jumlahBarang = 45, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 3, .HargaBarang = 4500, .diskon = 0.0f, .namaBarang = "Beras Rojolele 1kg", .jumlahBarang = 40, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 4, .HargaBarang = 2500, .diskon = 0.0f, .namaBarang = "Telur Ayam Butir", .jumlahBarang = 200, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 5, .HargaBarang = 9000, .diskon = 0.05f, .namaBarang = "Kecap Manis ABC", .jumlahBarang = 30, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 6, .HargaBarang = 13500, .diskon = 0.0f, .namaBarang = "Susu Kental Manis", .jumlahBarang = 35, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 7, .HargaBarang = 21000, .diskon = 0.1f, .namaBarang = "Deterjen Rinso 800g", .jumlahBarang = 25, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 8, .HargaBarang = 17500, .diskon = 0.0f, .namaBarang = "Sabun Lifebuoy 4pcs", .jumlahBarang = 30, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 9, .HargaBarang = 8000, .diskon = 0.0f, .namaBarang = "Pasta Gigi Pepsodent", .jumlahBarang = 40, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 10, .HargaBarang = 6500, .diskon = 0.0f, .namaBarang = "Sunlight 400ml", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 11, .HargaBarang = 5000, .diskon = 0.0f, .namaBarang = "Aqua Botol 600ml", .jumlahBarang = 100, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 12, .HargaBarang = 4000, .diskon = 0.0f, .namaBarang = "Teh Pucuk Harum", .jumlahBarang = 80, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 13, .HargaBarang = 12000, .diskon = 0.0f, .namaBarang = "Chitato Sapi", .jumlahBarang = 40, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 14, .HargaBarang = 18000, .diskon = 0.1f, .namaBarang = "Silverqueen Almond", .jumlahBarang = 25, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 15, .HargaBarang = 7000, .diskon = 0.0f, .namaBarang = "Coca Cola Kaleng", .jumlahBarang = 60, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 16, .HargaBarang = 22000, .diskon = 0.0f, .namaBarang = "Pringles Original", .jumlahBarang = 30, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 17, .HargaBarang = 8500, .diskon = 0.0f, .namaBarang = "Oreo Vanilla Pack", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 18, .HargaBarang = 15000, .diskon = 0.0f, .namaBarang = "Sari Roti Tawar", .jumlahBarang = 15, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 19, .HargaBarang = 6500, .diskon = 0.05f, .namaBarang = "Ultra Milk", .jumlahBarang = 70, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 20, .HargaBarang = 3500, .diskon = 0.0f, .namaBarang = "Mie Sedaap Goreng", .jumlahBarang = 120, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 21, .HargaBarang = 11000, .diskon = 0.0f, .namaBarang = "ABC Kecap", .jumlahBarang = 35, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 22, .HargaBarang = 28000, .diskon = 0.1f, .namaBarang = "Bimoli", .jumlahBarang = 20, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 23, .HargaBarang = 16000, .diskon = 0.0f, .namaBarang = "Gulaku", .jumlahBarang = 40, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 24, .HargaBarang = 25000, .diskon = 0.15f, .namaBarang = "Kopi Kapal Api 380g", .jumlahBarang = 30, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 25, .HargaBarang = 24000, .diskon = 0.0f, .namaBarang = "Lifebuoy Cair Refill", .jumlahBarang = 25, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 26, .HargaBarang = 12500, .diskon = 0.0f, .namaBarang = "Pepsodent White 190g", .jumlahBarang = 45, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 27, .HargaBarang = 30000, .diskon = 0.1f, .namaBarang = "Rinso Liquid 750ml", .jumlahBarang = 20, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 28, .HargaBarang = 9500, .diskon = 0.0f, .namaBarang = "Sunlight Jeruk Nipis", .jumlahBarang = 50, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 29, .HargaBarang = 14000, .diskon = 0.0f, .namaBarang = "Frisian Flag", .jumlahBarang = 35, .kadaluarsa = time(NULL)});
+	addBarang((struct barang){.nomorBarang = 30, .HargaBarang = 6000, .diskon = 0.0f, .namaBarang = "Pocari Sweat 350ml", .jumlahBarang = 60, .kadaluarsa = time(NULL)});
+}
+
 int main()
 {
 	system("cls");
 	// DO NOT REMOVE THIS LINE
 	SetConsoleOutputCP(CP_UTF8);
 	SetConsoleCP(CP_UTF8);
-
-	
-
+	adddumyData();
+	// ========================
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n");
 	return 0;
 } // di sini adalah semua main menu yang tersedia. total ada 3 (manajemen barang, pos, riwayat transaksi)
