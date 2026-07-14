@@ -1342,6 +1342,8 @@ void tampilanManajemen()
 
 } // ada tampilan yaitu menambah barang, dan menghapus barang, serta melihat semua barang, dan exit
 
+
+// Bagian kasir
 int simpanNota(struct nota notaSelesai)
 {
 	if (totalNotaTersimpan >= 100)
@@ -1536,8 +1538,147 @@ void tampilanKasir()
 }
 
 // Bagian riwayat Transaksi
+void tampilRiwayatTransaksi()
+{
+    system("cls");
+	
 
-// tinggal iklutin instruksi yang di atas ya
+
+    int width = 100;
+    int height = 30;
+
+    createBox(width, height, 0, 0);
+
+    gotoxy((width / 2) - 10, 1);
+    setTextColor(BLUE);
+    printf("RIWAYAT TRANSAKSI");
+    ResetColor();
+
+    if (totalNotaTersimpan == 0)
+    {
+        gotoxy(3, 4);
+        setTextColor(RED);
+        printf("Belum ada transaksi.");
+        ResetColor();
+
+        gotoxy(3, 6);
+        printf("Tekan apa saja untuk kembali...");
+        getch();
+        return;
+    }
+
+    int y = 3;
+
+    for (int i = 0; i < totalNotaTersimpan; i++)
+    {
+        struct nota *n = &semuanotaTersimpan[i];
+
+        struct tm *tanggal = localtime(&n->waktuTanggalTransaksi);
+
+        char waktu[50];
+        strftime(waktu, sizeof(waktu), "%d-%m-%Y %H:%M", tanggal);
+
+        gotoxy(2, y++);
+        setTextColor(YELLOW);
+        printf("==============================================================");
+        ResetColor();
+
+        gotoxy(2, y++);
+        printf("Nomor Nota : %d", n->nomorNota);
+
+        gotoxy(35, y - 1);
+        printf("Kasir : %s", n->nama_kasir);
+
+        gotoxy(2, y++);
+        printf("Tanggal : %s", waktu);
+
+        gotoxy(2, y++);
+        printf("--------------------------------------------------------------");
+
+        gotoxy(2, y++);
+        printf("%-4s %-25s %-6s %-10s %-10s",
+               "No",
+               "Barang",
+               "Qty",
+               "Harga",
+               "Subtotal");
+
+        int total = 0;
+
+        for (int j = 0; j < 100; j++)
+        {
+            if (n->semuabarangp[j].jumlah <= 0)
+                break;
+
+            gotoxy(2, y++);
+
+            printf("%-4d %-25s %-6d %-10d %-10d",
+                   j + 1,
+                   n->semuabarangp[j].barang.namaBarang,
+                   n->semuabarangp[j].jumlah,
+                   n->semuabarangp[j].barang.HargaBarang,
+                   n->semuabarangp[j].subTotall);
+
+            total += n->semuabarangp[j].subTotall;
+
+            if (y >= 27)
+            {
+                gotoxy(2, 28);
+                printf("Tekan apa saja untuk halaman berikutnya...");
+                getch();
+
+                system("cls");
+                createBox(width, height, 0, 0);
+
+                gotoxy((width / 2) - 10, 1);
+                setTextColor(BLUE);
+                printf("RIWAYAT TRANSAKSI");
+                ResetColor();
+
+                y = 3;
+            }
+        }
+
+        gotoxy(2, y++);
+        setTextColor(GREEN);
+        printf("TOTAL BELANJA : Rp%d", total);
+        ResetColor();
+
+        y++;
+
+        if (y >= 26 && i != totalNotaTersimpan - 1)
+        {
+            gotoxy(2, 28);
+            printf("Tekan apa saja untuk transaksi berikutnya...");
+            getch();
+
+            system("cls");
+            createBox(width, height, 0, 0);
+
+            gotoxy((width / 2) - 10, 1);
+            setTextColor(BLUE);
+            printf("RIWAYAT TRANSAKSI");
+            ResetColor();
+
+            y = 3;
+        }
+    }
+
+    gotoxy(2, 28);
+    printf("Tekan apa saja untuk kembali...");
+    getch();
+}
+
+void ahkiran()
+{
+
+	system("cls");
+	tampilanKasir();
+
+	tampilRiwayatTransaksi();
+	
+	tampilanKasir();
+	}
 
 void adddumyData()
 {
@@ -1723,12 +1864,7 @@ void mainmenu()
 			tampilanKasir();
 			break;
 		case 3:
-			system("cls");
-			gotoxy(posX, posY);
-			setTextColor(YELLOW);
-			printf("Fitur Riwayat Transaksi belum tersedia.");
-			ResetColor();
-			getch();
+			tampilRiwayatTransaksi();
 			break;
 		case 9:
 			sudahLogout = 1;
