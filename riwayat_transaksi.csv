@@ -12,3 +12,5 @@ NoNota,Kasir,Tanggal,KodeBarang,NamaBarang,Qty,Harga,Diskon,Subtotal
 2,admin,14-07-2026 20:33,1,Indomie Goreng,50,3500,0.00,175000
 2,admin,14-07-2026 20:33,1,Indomie Goreng,40,3500,0.00,140000
 3,admin,14-07-2026 20:46,1,Indomie Goreng,40,3500,0.00,140000
+4,admin,14-07-2026 23:03,1,Indomie Goreng,10,3500,0.00,35000
+5,admin,14-07-2026 23:04,18,Sari Roti Tawar,9,15000,0.00,135000
