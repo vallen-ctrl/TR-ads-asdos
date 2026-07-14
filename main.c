@@ -91,6 +91,8 @@ struct nota
 };
 
 struct nota semuanotaTersimpan[100];
+
+struct nota semuanotaTersimpan[100];
 int totalNotaTersimpan = 0;
 
 // dumy data adder
@@ -270,7 +272,7 @@ int editBarang(int nomorBarang, struct barang setBarang)
 int ambilBarang(int nomorBarang, int diambil)
 {
 	struct nodeBarang *temp = searchBarang_nomor(nomorBarang);
-	if (searchBarang == NULL)
+	if (temp == NULL)
 	{
 		return 0;
 	}
@@ -279,7 +281,7 @@ int ambilBarang(int nomorBarang, int diambil)
 		printf("barang sudah habis / tidak mencukupi. mohon lakuakan penambahan barang");
 		return 0;
 	}
-	temp->data.jumlahBarang = temp->data.jumlahBarang - diambil;
+	temp->data.jumlahBarang -= diambil;
 	temp->waktuDiubah = time(NULL);
 }
 
@@ -1344,17 +1346,6 @@ void tampilanManajemen()
 
 
 // Bagian kasir
-int simpanNota(struct nota notaSelesai)
-{
-	if (totalNotaTersimpan >= 100)
-	{
-		return 0;
-	}
-	semuanotaTersimpan[totalNotaTersimpan] = notaSelesai;
-	totalNotaTersimpan++;
-	return 1;
-}
-
 void tampilKeranjang(struct barangdibeli keranjang[], int jumlahItem)
 {
 	int width = 98;
@@ -1396,6 +1387,69 @@ void tampilKeranjang(struct barangdibeli keranjang[], int jumlahItem)
 				keranjang[i].diskon,
 				keranjang[i].jumlah);
 	}
+}
+
+void simpanRiwayatCSV(struct nota *nota, int jumlahItem)
+{
+    FILE *fp = fopen("riwayat_transaksi.csv", "a");
+
+    if (fp == NULL)
+        return;
+
+    // Jika file baru, buat header
+    fseek(fp, 0, SEEK_END);
+    if (ftell(fp) == 0)
+    {
+        fprintf(fp,
+        "NoNota,Kasir,Tanggal,KodeBarang,NamaBarang,Qty,Harga,Diskon,Subtotal\n");
+    }
+
+    char tanggal[50];
+    struct tm *t = localtime(&nota->waktuTanggalTransaksi);
+    strftime(tanggal, sizeof(tanggal), "%d-%m-%Y %H:%M", t);
+
+    for (int i = 0; i < jumlahItem; i++)
+    {
+        fprintf(fp,
+                "%d,%s,%s,%d,%s,%d,%d,%.2f,%d\n",
+                nota->nomorNota,
+                nota->nama_kasir,
+                tanggal,
+                nota->semuabarangp[i].barang.nomorBarang,
+                nota->semuabarangp[i].barang.namaBarang,
+                nota->semuabarangp[i].jumlah,
+                nota->semuabarangp[i].barang.HargaBarang,
+                nota->semuabarangp[i].diskon,
+                nota->semuabarangp[i].subTotall);
+    }
+
+    fclose(fp);
+}
+
+int getNomorNotaBaru()
+{
+    FILE *fp = fopen("riwayat_transaksi.csv", "r");
+
+    if (fp == NULL)
+        return 1;
+
+    char line[256];
+    int nomorTerakhir = 0;
+
+    fgets(line, sizeof(line), fp); // lewati header
+
+    while (fgets(line, sizeof(line), fp))
+    {
+        int nomor;
+        sscanf(line, "%d,", &nomor);
+
+        if (nomor > nomorTerakhir)
+            nomorTerakhir = nomor;
+    }
+
+    fclose(fp);
+
+    return nomorTerakhir + 1;
 }
 
 void tampilanKasir()
@@ -1463,33 +1517,67 @@ void tampilanKasir()
 			continue;
 		}
 
-		if (b->jumlahBarang < qty)
+		int indexDiKeranjang = -1;
+		for (int i = 0; i < jumlahItem; i++)
+		{
+			if (keranjang[i].barang.nomorBarang == nomorBarang)
+			{
+				indexDiKeranjang = i;
+				break;
+			}
+		}
+
+		int qtyTotal = qty;
+		if (indexDiKeranjang != -1)
+		{
+			qtyTotal += keranjang[indexDiKeranjang].jumlah;
+		}
+
+		if (b->jumlahBarang < qtyTotal)
 		{
 			setTextColor(RED);
-			printf("Stok kurang. Stok tersedia %d. Tekan apa saja untuk melanjutkan...", b->jumlahBarang);
+			if (indexDiKeranjang != -1)
+			{
+				printf("Stok kurang. Stok tersedia %d (sudah di keranjang %d). Tekan apa saja...", (b->jumlahBarang - keranjang[indexDiKeranjang].jumlah), keranjang[indexDiKeranjang].jumlah);
+			}
+			else
+			{
+				printf("Stok kurang. Stok tersedia %d. Tekan apa saja...", b->jumlahBarang);
+			}
 			ResetColor();
 			getch();
 			continue;
 		}
 
-		if (jumlahItem >= 100)
+		if (indexDiKeranjang != -1)
 		{
-			setTextColor(RED);
-			printf("Keranjang penuh. Tekan apa saja untuk melanjutkan...");
-			ResetColor();
-			getch();
-			break;
+			totalBayar -= keranjang[indexDiKeranjang].subTotall;
+			keranjang[indexDiKeranjang].jumlah = qtyTotal;
+			float hargaLine = (float)b->HargaBarang * qtyTotal * (1.0f - b->diskon);
+			keranjang[indexDiKeranjang].subTotall = (int)(hargaLine + 0.5f);
+			totalBayar += keranjang[indexDiKeranjang].subTotall;
 		}
+		else
+		{
+			if (jumlahItem >= 100)
+			{
+				setTextColor(RED);
+				printf("Keranjang penuh. Tekan apa saja untuk melanjutkan...");
+				ResetColor();
+				getch();
+				break;
+			}
 
-		keranjang[jumlahItem].nomorNota = totalNotaTersimpan + 1;
-		keranjang[jumlahItem].barang = *b;
-		keranjang[jumlahItem].jumlah = qty;
-		keranjang[jumlahItem].diskon = b->diskon;
+			keranjang[jumlahItem].nomorNota = getNomorNotaBaru();
+			keranjang[jumlahItem].barang = *b;
+			keranjang[jumlahItem].jumlah = qty;
+			keranjang[jumlahItem].diskon = b->diskon;
 
-		float hargaLine = (float)b->HargaBarang * qty * (1.0f - b->diskon);
-		keranjang[jumlahItem].subTotall = (int)(hargaLine + 0.5f);
-		totalBayar += keranjang[jumlahItem].subTotall;
-		jumlahItem++;
+			float hargaLine = (float)b->HargaBarang * qty * (1.0f - b->diskon);
+			keranjang[jumlahItem].subTotall = (int)(hargaLine + 0.5f);
+			totalBayar += keranjang[jumlahItem].subTotall;
+			jumlahItem++;
+		}
 	}
 
 	if (jumlahItem == 0)
@@ -1501,7 +1589,7 @@ void tampilanKasir()
 	}
 
 	struct nota notaSelesai;
-	notaSelesai.nomorNota = totalNotaTersimpan + 1;
+	notaSelesai.nomorNota = getNomorNotaBaru();
 	strcpy(notaSelesai.nama_kasir, kasir_sekarang.username);
 	notaSelesai.waktuTanggalTransaksi = time(NULL);
 
@@ -1516,7 +1604,13 @@ void tampilanKasir()
 		ambilBarang(keranjang[i].barang.nomorBarang, keranjang[i].jumlah);
 	}
 
-	simpanNota(notaSelesai);
+	gotoxy(3, 22);
+	setTextColor(YELLOW);
+	printf("Nomor nota yang akan disimpan: %d\n", notaSelesai.nomorNota);
+	ResetColor();
+	getch();
+
+	simpanRiwayatCSV(&notaSelesai, jumlahItem);
 
 	system("cls");
 	setTextColor(YELLOW);
@@ -1537,12 +1631,57 @@ void tampilanKasir()
 	getch();
 }
 
+void headerNota(int width, int *y, int noNota, char kasir[], char tanggal[])
+{
+    gotoxy(2, (*y)++);
+    setTextColor(YELLOW);
+    printf("==============================================================");
+    ResetColor();
+
+    gotoxy(2, (*y)++);
+    printf("Nomor Nota : %d", noNota);
+
+    gotoxy(35, (*y)-1);
+    printf("Kasir : %s", kasir);
+
+    gotoxy(2, (*y)++);
+    printf("Tanggal : %s", tanggal);
+
+    gotoxy(2, (*y)++);
+    printf("--------------------------------------------------------------");
+
+    gotoxy(2, (*y)++);
+    printf("%-8s %-25s %-6s %-10s %-10s",
+           "Kode",
+           "Barang",
+           "Qty",
+           "Harga",
+           "Subtotal");
+}
+
+
+struct RiwayatNota
+{
+    int noNota;
+    char kasir[20];
+    char tanggal[30];
+
+    int jumlahBarang;
+
+    int kodeBarang[100];
+    char namaBarang[100][50];
+    int qty[100];
+    int harga[100];
+    float diskon[100];
+    int subtotal[100];
+
+    int totalBelanja;
+};
+
 // Bagian riwayat Transaksi
 void tampilRiwayatTransaksi()
 {
     system("cls");
-	
-
 
     int width = 100;
     int height = 30;
@@ -1554,7 +1693,13 @@ void tampilRiwayatTransaksi()
     printf("RIWAYAT TRANSAKSI");
     ResetColor();
 
-    if (totalNotaTersimpan == 0)
+    FILE *fp = fopen("riwayat_transaksi.csv", "r");
+
+	struct RiwayatNota daftarNota[100];
+
+int jumlahNota = 0;
+
+    if (fp == NULL)
     {
         gotoxy(3, 4);
         setTextColor(RED);
@@ -1567,107 +1712,187 @@ void tampilRiwayatTransaksi()
         return;
     }
 
+    char line[256];
+	int notaSekarang = -1;
+
+    // Lewati header CSV
+    fgets(line, sizeof(line), fp);
+
     int y = 3;
 
-    for (int i = 0; i < totalNotaTersimpan; i++)
+    int lastNota = -1;
+    int totalBelanja = 0;
+
+    int noNota;
+    char kasir[20];
+    char tanggal[30];
+    int kodeBarang;
+    char namaBarang[50];
+    int qty;
+    int harga;
+    float diskon;
+    int subtotal;
+
+		while(fgets(line,sizeof(line),fp))
+{
+    int noNota;
+    char kasir[20];
+    char tanggal[30];
+    int kodeBarang;
+    char namaBarang[50];
+    int qty;
+    int harga;
+    float diskon;
+    int subtotal;
+
+    if(sscanf(line,
+        "%d,%19[^,],%29[^,],%d,%49[^,],%d,%d,%f,%d",
+        &noNota,
+        kasir,
+        tanggal,
+        &kodeBarang,
+        namaBarang,
+        &qty,
+        &harga,
+        &diskon,
+        &subtotal)!=9)
     {
-        struct nota *n = &semuanotaTersimpan[i];
-
-        struct tm *tanggal = localtime(&n->waktuTanggalTransaksi);
-
-        char waktu[50];
-        strftime(waktu, sizeof(waktu), "%d-%m-%Y %H:%M", tanggal);
-
-        gotoxy(2, y++);
-        setTextColor(YELLOW);
-        printf("==============================================================");
-        ResetColor();
-
-        gotoxy(2, y++);
-        printf("Nomor Nota : %d", n->nomorNota);
-
-        gotoxy(35, y - 1);
-        printf("Kasir : %s", n->nama_kasir);
-
-        gotoxy(2, y++);
-        printf("Tanggal : %s", waktu);
-
-        gotoxy(2, y++);
-        printf("--------------------------------------------------------------");
-
-        gotoxy(2, y++);
-        printf("%-4s %-25s %-6s %-10s %-10s",
-               "No",
-               "Barang",
-               "Qty",
-               "Harga",
-               "Subtotal");
-
-        int total = 0;
-
-        for (int j = 0; j < 100; j++)
-        {
-            if (n->semuabarangp[j].jumlah <= 0)
-                break;
-
-            gotoxy(2, y++);
-
-            printf("%-4d %-25s %-6d %-10d %-10d",
-                   j + 1,
-                   n->semuabarangp[j].barang.namaBarang,
-                   n->semuabarangp[j].jumlah,
-                   n->semuabarangp[j].barang.HargaBarang,
-                   n->semuabarangp[j].subTotall);
-
-            total += n->semuabarangp[j].subTotall;
-
-            if (y >= 27)
-            {
-                gotoxy(2, 28);
-                printf("Tekan apa saja untuk halaman berikutnya...");
-                getch();
-
-                system("cls");
-                createBox(width, height, 0, 0);
-
-                gotoxy((width / 2) - 10, 1);
-                setTextColor(BLUE);
-                printf("RIWAYAT TRANSAKSI");
-                ResetColor();
-
-                y = 3;
-            }
-        }
-
-        gotoxy(2, y++);
-        setTextColor(GREEN);
-        printf("TOTAL BELANJA : Rp%d", total);
-        ResetColor();
-
-        y++;
-
-        if (y >= 26 && i != totalNotaTersimpan - 1)
-        {
-            gotoxy(2, 28);
-            printf("Tekan apa saja untuk transaksi berikutnya...");
-            getch();
-
-            system("cls");
-            createBox(width, height, 0, 0);
-
-            gotoxy((width / 2) - 10, 1);
-            setTextColor(BLUE);
-            printf("RIWAYAT TRANSAKSI");
-            ResetColor();
-
-            y = 3;
-        }
+        continue;
     }
 
-    gotoxy(2, 28);
-    printf("Tekan apa saja untuk kembali...");
-    getch();
+    if(noNota!=notaSekarang)
+    {
+        notaSekarang=noNota;
+
+        daftarNota[jumlahNota].noNota=noNota;
+        strcpy(daftarNota[jumlahNota].kasir,kasir);
+        strcpy(daftarNota[jumlahNota].tanggal,tanggal);
+
+        daftarNota[jumlahNota].jumlahBarang=0;
+        daftarNota[jumlahNota].totalBelanja=0;
+
+        jumlahNota++;
+    }
+
+    int idx=jumlahNota-1;
+    int b=daftarNota[idx].jumlahBarang;
+
+    daftarNota[idx].kodeBarang[b]=kodeBarang;
+    strcpy(daftarNota[idx].namaBarang[b],namaBarang);
+    daftarNota[idx].qty[b]=qty;
+    daftarNota[idx].harga[b]=harga;
+    daftarNota[idx].diskon[b]=diskon;
+    daftarNota[idx].subtotal[b]=subtotal;
+
+    daftarNota[idx].totalBelanja+=subtotal;
+
+    daftarNota[idx].jumlahBarang++;
 }
+
+fclose(fp);
+
+	if (jumlahNota == 0)
+		{
+    		gotoxy(3, 4);
+    		printf("Belum ada transaksi.");
+    		getch();
+    		return;
+}
+
+int halaman = 0;
+char tombol;
+
+    while (1)
+{
+    system("cls");
+
+    createBox(width, height, 0, 0);
+
+    gotoxy((width / 2) - 10, 1);
+    setTextColor(BLUE);
+    printf("RIWAYAT TRANSAKSI");
+    ResetColor();
+
+    int y = 3;
+
+    gotoxy(2, y++);
+    setTextColor(YELLOW);
+    printf("==============================================================");
+    ResetColor();
+
+    gotoxy(2, y++);
+    printf("Nomor Nota : %d", daftarNota[halaman].noNota);
+
+    gotoxy(35, y - 1);
+    printf("Kasir : %s", daftarNota[halaman].kasir);
+
+    gotoxy(2, y++);
+    printf("Tanggal : %s", daftarNota[halaman].tanggal);
+
+    gotoxy(2, y++);
+    printf("--------------------------------------------------------------");
+
+    gotoxy(2, y++);
+    printf("%-8s %-25s %-6s %-10s %-10s",
+           "Kode",
+           "Barang",
+           "Qty",
+           "Harga",
+           "Subtotal");
+
+		       for(int i = 0; i < daftarNota[halaman].jumlahBarang; i++)
+    {
+        gotoxy(2, y++);
+
+        printf("%-8d %-25s %-6d %-10d %-10d",
+               daftarNota[halaman].kodeBarang[i],
+               daftarNota[halaman].namaBarang[i],
+               daftarNota[halaman].qty[i],
+               daftarNota[halaman].harga[i],
+               daftarNota[halaman].subtotal[i]);
+    }
+	    gotoxy(2, y + 1);
+
+    setTextColor(GREEN);
+    printf("TOTAL BELANJA : Rp%d",
+           daftarNota[halaman].totalBelanja);
+    ResetColor();
+
+	gotoxy(2, 28);
+
+printf("[A] Sebelumnya");
+
+gotoxy(35,28);
+printf("Nota %d / %d", halaman + 1, jumlahNota);
+
+gotoxy(65,28);
+printf("[D] Berikutnya");
+
+gotoxy(88,28);
+printf("[ESC] Keluar");
+
+tombol = getch();
+
+if (tombol == 27)
+{
+    break;
+}
+
+if (tombol == 'a' || tombol == 'A')
+{
+    if (halaman > 0)
+        halaman--;
+}
+
+if (tombol == 'd' || tombol == 'D')
+{
+    if (halaman < jumlahNota - 1)
+        halaman++;
+}
+}
+return;
+}
+
 
 void ahkiran()
 {
@@ -1884,6 +2109,16 @@ void mainmenu()
 	}
 }
 
+
+void loadRiwayatCSV()
+{
+	FILE *fp=fopen("riwayat_transaksi.csv","r");
+
+if(fp==NULL)
+    return;
+
+}
+
 int main()
 {
 	system("cls");
@@ -1892,7 +2127,7 @@ int main()
 	SetConsoleCP(CP_UTF8);
 	adddumyData();
 	// ========================
-
+	loadRiwayatCSV();
 	// Loop login sampai berhasil
 	char username[20];
 	char password[8];
