@@ -1,16 +1,6 @@
 NoNota,Kasir,Tanggal,KodeBarang,NamaBarang,Qty,Harga,Diskon,Subtotal
-1,admin,14-07-2026 20:31,3,Beras Rojolele 1kg,10,4500,0.00,45000
-1,admin,14-07-2026 20:31,8,Sabun Lifebuoy 4pcs,10,17500,0.00,175000
-2,admin,14-07-2026 20:33,2,Indomie Kuah Ayam,10,3200,0.00,32000
-2,admin,14-07-2026 20:33,2,Indomie Kuah Ayam,10,3200,0.00,32000
-2,admin,14-07-2026 20:33,2,Indomie Kuah Ayam,10,3200,0.00,32000
-2,admin,14-07-2026 20:33,3,Beras Rojolele 1kg,10,4500,0.00,45000
-2,admin,14-07-2026 20:33,4,Telur Ayam Butir,10,2500,0.00,25000
-2,admin,14-07-2026 20:33,9,Pasta Gigi Pepsodent(,10,8000,0.00,80000
-2,admin,14-07-2026 20:33,23,Gulaku,10,16000,0.00,160000
-2,admin,14-07-2026 20:33,1,Indomie Goreng,40,3500,0.00,140000
-2,admin,14-07-2026 20:33,1,Indomie Goreng,50,3500,0.00,175000
-2,admin,14-07-2026 20:33,1,Indomie Goreng,40,3500,0.00,140000
-3,admin,14-07-2026 20:46,1,Indomie Goreng,40,3500,0.00,140000
-4,admin,14-07-2026 23:03,1,Indomie Goreng,10,3500,0.00,35000
-5,admin,14-07-2026 23:04,18,Sari Roti Tawar,9,15000,0.00,135000
+1,admin,15-07-2026 12:55,27,Rinso Liquid 750ml,20,30000,0.10,540000
+1,admin,15-07-2026 12:55,9,Pasta Gigi Pepsodent(,10,8000,0.00,80000
+2,admin,15-07-2026 12:57,26,Pepsodent White 190g-,2,12500,0.00,25000
+2,admin,15-07-2026 12:57,10,Sunlight 400ml,2,6500,0.00,13000
+2,admin,15-07-2026 12:57,8,Sabun Lifebuoy 4pcs,9,17500,0.00,157500

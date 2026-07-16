@@ -2074,6 +2074,179 @@ int login(char username[20], char password[8])
 	return 0;
 }
 
+struct Member {
+	char nama[50];
+	char nim[20];
+	char kesanPesan[600];
+};
+
+struct Member daftar_member[4] = {
+	{
+		"VALLEN NATHALIO MALIA",
+		"672025006",
+		"Kesan: di awal kek apa si yang bakal dipelajari apakah algoritma dooang. ternyata engga. walau pas awal ku kira ga bakal bahas dari awal lagi. ternyata bahhas dari awal lagi. jadi ya... tapi ga papa aku suka, walau mas ibas itu kalo jelasin kadang kemana-mana. but over all aku memang suka pelajaran yang mengharuskan aku ngoding (ga design).\n\nPesan: Untuk mas ibas aja si.. kalo jelasin mohon jangan plenger kadang dibuat muter muter sampe ga ngerti jujur. Kalo utk kak Raphael: over all udh keren cuman kata ku si lebih pd aja. udh dapet kok ilmunya"
+	},
+	{
+		"KEZIA STEFANNY EFLINA PRASETYO",
+		"672025007",
+		"kesan & pesan: mantappppppppppppppp"
+	},
+	{
+		"MATAYA OKTAVIANO",
+		"672025012",
+		""
+	},
+	{
+		"TITAN BRATA PRASETYA",
+		"672025014",
+		""
+	}
+};
+
+void printWrappedText(const char *text, int startX, int startY, int maxLineWidth)
+{
+	int curX = startX;
+	int curY = startY;
+	gotoxy(curX, curY);
+
+	int i = 0;
+	int len = strlen(text);
+
+	while (i < len)
+	{
+		// Cari panjang kata berikutnya
+		int wordLen = 0;
+		while (i + wordLen < len && text[i + wordLen] != ' ' && text[i + wordLen] != '\n')
+		{
+			wordLen++;
+		}
+
+		// Jika kata melebihi batas baris, pindah ke baris berikutnya
+		if (curX + wordLen >= startX + maxLineWidth)
+		{
+			curX = startX;
+			curY++;
+			gotoxy(curX, curY);
+		}
+
+		// Cetak kata tersebut
+		for (int w = 0; w < wordLen; w++)
+		{
+			putchar(text[i + w]);
+			curX++;
+		}
+
+		i += wordLen;
+
+		// Tangani spasi atau baris baru
+		if (i < len)
+		{
+			if (text[i] == '\n')
+			{
+				curX = startX;
+				curY++;
+				gotoxy(curX, curY);
+			}
+			else if (text[i] == ' ')
+			{
+				putchar(' ');
+				curX++;
+				if (curX >= startX + maxLineWidth)
+				{
+					curX = startX;
+					curY++;
+					gotoxy(curX, curY);
+				}
+			}
+			i++;
+		}
+	}
+}
+
+void tampilKesanPesan(int index)
+{
+	system("cls");
+	int width = 50, height = 20;
+	int posX = (TERMINALWIDTH / 2) - (width / 2);
+	int posY = 3;
+
+	createBox(width, height, posX, posY);
+
+
+	gotoxy(posX + 3, posY + 2);
+	setTextColor(CYAN);
+	printf("Kesan Pesan Dari:");
+	ResetColor();
+
+	gotoxy(posX + 3, posY + 3);
+	setTextColor(LIGHTGREEN);
+	printf("%s - %s", daftar_member[index].nama, daftar_member[index].nim);
+	ResetColor();
+
+	gotoxy(posX + 1, posY + 4);
+	for (int i = 0; i < width - 1; i++)
+	{
+		printf("-");
+	}
+
+
+	gotoxy(posX + 3, posY + height+1);
+	setTextColor(YELLOW);
+	printf("Tekan apa saja untuk kembali...");
+	ResetColor();
+
+	// Render Kesan Pesan (static text)
+	printWrappedText(daftar_member[index].kesanPesan, posX + 3, posY + 5, width - 6);
+
+	getch();
+}
+
+void tampilAuthor()
+{
+	char tombol;
+	while (1)
+	{
+		system("cls");
+		int width = 58, height = 13;
+		int posX = (TERMINALWIDTH / 2) - (width / 2);
+		int posY = 6;
+
+		createBox(width, height, posX, posY);
+
+		gotoxy(posX + (width / 2) - 8, posY + 1);
+		setTextColor(BLUE);
+		printf("AUTHOR / KELOMPOK");
+		ResetColor();
+
+		// Header tabel (tanpa garis pembatas vertikal/horizontal agar terlihat clear & rapi)
+		gotoxy(posX + 5, posY + 3);
+		setTextColor(LIGHTGREEN);
+		printf("%-4s %-30s %s", "NO.", "NAMA MEMBER", "NIM");
+		ResetColor();
+
+		for (int i = 0; i < 4; i++)
+		{
+			gotoxy(posX + 5, posY + 5 + i);
+			printf("%d.   %-30s %s", i + 1, daftar_member[i].nama, daftar_member[i].nim);
+		}
+
+		gotoxy(posX + 3, posY + 10);
+		setTextColor(YELLOW);
+		printf("Pilih member (1-4) atau 'q' untuk kembali: ");
+		ResetColor();
+
+		tombol = getch();
+		if (tombol == 'q' || tombol == 'Q')
+		{
+			break;
+		}
+		else if (tombol >= '1' && tombol <= '4')
+		{
+			tampilKesanPesan(tombol - '1');
+		}
+	}
+}
+
 void mainmenu()
 {
 	int pilihan;
@@ -2082,7 +2255,7 @@ void mainmenu()
 	while (!sudahLogout)
 	{
 		system("cls");
-		int width = 60, height = 14;
+		int width = 60, height = 15;
 		int posX = (TERMINALWIDTH / 2) - (width / 2);
 		int posY = 5;
 
@@ -2103,15 +2276,17 @@ void mainmenu()
 		gotoxy(posX + 3, posY + 7);
 		printf("3. Riwayat Transaksi");
 		gotoxy(posX + 3, posY + 8);
+		printf("4. Tampil Author");
+		gotoxy(posX + 3, posY + 10);
 		setTextColor(YELLOW);
 		printf("9. Logout");
 		ResetColor();
-		gotoxy(posX + 3, posY + 9);
+		gotoxy(posX + 3, posY + 11);
 		setTextColor(RED);
 		printf("0. Keluar Program");
 		ResetColor();
 
-		gotoxy(posX + 3, posY + 11);
+		gotoxy(posX + 3, posY + 13);
 		printf("Pilih menu: ");
 
 		if (scanf("%d", &pilihan) != 1)
@@ -2131,6 +2306,9 @@ void mainmenu()
 		case 3:
 			tampilRiwayatTransaksi();
 			break;
+		case 4:
+			tampilAuthor();
+			break;
 		case 9:
 			sudahLogout = 1;
 			memset(&kasir_sekarang, 0, sizeof(kasir_sekarang));
@@ -2139,7 +2317,7 @@ void mainmenu()
 			sudahLogout = 1;
 			exit(0); // langsung keluar program
 		default:
-			gotoxy(posX + 3, posY + 13);
+			gotoxy(posX + 3, posY + 14);
 			setTextColor(RED);
 			printf("Pilihan tidak valid! Coba lagi...");
 			ResetColor();
